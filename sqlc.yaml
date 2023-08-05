@@ -1,0 +1,17 @@
+# @format
+
+version: "2"
+sql:
+  - schema: "/db/migrations/"
+    queries: "/db/query/"
+    engine: "postgresql"
+    gen:
+      go:
+        emit_json_tags: true
+        package: authors
+        out: postgresql
+
+    database:
+      uri: "postgresql://postgres:postgres@localhost:5432/postgres"
+    rules:
+      - sqlc/db-prepare
