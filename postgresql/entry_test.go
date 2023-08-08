@@ -58,7 +58,7 @@ func TestListEntry(t *testing.T) {
 	}
 
 	arg := ListEntriesParams{
-		AccountID: 1,
+		AccountID: account.ID,
 		Limit:     5,
 		Offset:    5,
 	}
