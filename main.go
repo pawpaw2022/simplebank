@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // postgresql driver
 	"github.com/pawpaw2022/simplebank/api"
 	db "github.com/pawpaw2022/simplebank/db/postgresql"
 )

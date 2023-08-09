@@ -18,10 +18,9 @@ func NewServer(store *db.Store) *Server {
 
 	// Params: endpoint, *middleware* ,handler
 	router.POST("/accounts", server.createAccount)
-	// router.GET("/accounts/:id", server.getAccount)
-	// router.DELETE("/accounts/:id", server.deleteAccount)
-	// router.GET("/accounts/:id/entries", server.listAccountEntries)
-	// router.POST("/transfers", server.createTransfer)
+	router.GET("/accounts/:id", server.getAccount)
+	router.GET("/accounts", server.listAccounts)
+	router.PATCH("/accounts/:id", server.updateAccountBalance)
 
 	server.router = router
 	return server
