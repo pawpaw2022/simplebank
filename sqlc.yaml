@@ -9,6 +9,7 @@ sql:
       go:
         emit_json_tags: true
         emit_empty_slices: true # return [] instead of nil
+        emit_interface: true
         package: db
         out: /db/postgresql
 
