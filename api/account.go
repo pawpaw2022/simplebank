@@ -2,7 +2,6 @@ package api
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -96,6 +95,12 @@ func (server *Server) listAccounts(ctx *gin.Context) {
 	})
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			// Account not found
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
 		// Database Error
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -111,40 +116,4 @@ type UpdateAccountBalanceUri struct {
 
 type UpdateAccountBalanceJSON struct {
 	Amount int64 `json:"amount" binding:"required,ne=0"`
-}
-
-func (server *Server) updateAccountBalance(ctx *gin.Context) {
-	var uri UpdateAccountBalanceUri
-	var json UpdateAccountBalanceJSON
-
-	// Assign the request body to the req variable
-	if err := ctx.ShouldBindUri(&uri); err != nil {
-		// Invalid User Input
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	// Assign the request body to the req variable
-	if err := ctx.ShouldBindJSON(&json); err != nil {
-		// Invalid User Input
-		fmt.Println("err", err)
-
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	// Get the account
-	account, err := server.store.UpdateAccountBalance(ctx, db.UpdateAccountBalanceParams{
-		ID:     uri.ID,
-		Amount: json.Amount,
-	})
-
-	if err != nil {
-		// Database Error
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	// Insert success, return the account
-	ctx.JSON(http.StatusOK, account)
 }
