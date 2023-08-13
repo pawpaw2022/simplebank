@@ -58,7 +58,7 @@ func TestCreateTransferAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "BadRequest: Invalid Account ID",
+			name: "Invalid Account ID",
 			body: gin.H{
 				"from_account_id": account1.ID,
 				"to_account_id":   0,
@@ -75,7 +75,7 @@ func TestCreateTransferAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "BadRequest: FromAccount Currency Mismatch",
+			name: "FromAccount Currency Mismatch",
 			body: gin.H{
 				"from_account_id": account3.ID,
 				"to_account_id":   account1.ID,
@@ -93,7 +93,7 @@ func TestCreateTransferAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "BadRequest: ToAccount Currency Mismatch",
+			name: "ToAccount Currency Mismatch",
 			body: gin.H{
 				"from_account_id": account1.ID,
 				"to_account_id":   account3.ID,
@@ -111,7 +111,24 @@ func TestCreateTransferAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "NotFound: User Not Found",
+			name: "Invalid Input Currency",
+			body: gin.H{
+				"from_account_id": account1.ID,
+				"to_account_id":   account2.ID,
+				"amount":          amount,
+				"currency":        "invalid",
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				// GetAccount
+				store.EXPECT().GetAccount(gomock.Any(), gomock.Any()).Times(0)
+				store.EXPECT().TransferTx(gomock.Any(), gomock.Any()).Times(0)
+			},
+			checker: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "User Not Found",
 			body: gin.H{
 				"from_account_id": account1.ID,
 				"to_account_id":   account2.ID,
@@ -128,7 +145,7 @@ func TestCreateTransferAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "InternalError: Get User Error",
+			name: "Get User Error",
 			body: gin.H{
 				"from_account_id": account1.ID,
 				"to_account_id":   account2.ID,
@@ -145,7 +162,7 @@ func TestCreateTransferAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "InternalError: Tx DB Error",
+			name: "Tx DB Error",
 			body: gin.H{
 				"from_account_id": account1.ID,
 				"to_account_id":   account2.ID,

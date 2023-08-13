@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	db "github.com/pawpaw2022/simplebank/db/postgresql"
 )
 
@@ -31,6 +32,19 @@ func (server *Server) createAccount(ctx *gin.Context) {
 	})
 
 	if err != nil {
+
+		// Check if the error is pq.Error
+		if pqErr, ok := err.(*pq.Error); ok {
+			// print the error code name
+			// log.Println("pqErr:", pqErr.Code.Name())
+			switch pqErr.Code.Name() {
+			// return 403 if user not found or user_account already exists
+			case "unique_violation", "foreign_key_violation":
+				ctx.JSON(http.StatusForbidden, errorResponse(err))
+				return
+			}
+		}
+
 		// Database Error
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
