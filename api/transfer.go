@@ -27,11 +27,12 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
-	// Validate the currency
+	// Validate the fromAccount currency
 	if !s.validateUser(ctx, req.FromAccountID, req.Currency) {
 		return
 	}
 
+	// Validate the toAccount currency
 	if !s.validateUser(ctx, req.ToAccountID, req.Currency) {
 		return
 	}
