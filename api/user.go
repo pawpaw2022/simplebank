@@ -74,3 +74,68 @@ func (server *Server) createUser(ctx *gin.Context) {
 	// Insert success, return the account
 	ctx.JSON(http.StatusOK, res)
 }
+
+type LoginParams struct {
+	Username string `json:"username" binding:"required,min=6,alphanum"` // alphanum: only allow alphanumeric characters
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+type LoginResponse struct {
+	AccessToken string       `json:"access_token"`
+	User        UserResponse `json:"user"`
+}
+
+func (server *Server) login(ctx *gin.Context) {
+	var req LoginParams
+
+	// Assign the request body to the req variable
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		// Invalid User Input
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	// Get the user
+	user, err := server.store.GetUser(ctx, req.Username)
+	if err != nil {
+		if err == db.ErrRecordNotFound {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
+		// Database Error
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Check the password
+	if err := util.ComparePassword(user.HashedPassword, req.Password); err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	// Generate the access token
+	accessToken, err := server.tokenMaker.CreateToken(
+		user.Username,
+		server.config.AccessTokenDuration,
+	)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Fill the response
+	res := LoginResponse{
+		AccessToken: accessToken,
+		User: UserResponse{
+			Username:          user.Username,
+			FullName:          user.FullName,
+			Email:             user.Email,
+			PasswordChangedAt: user.PasswordChangedAt,
+			CreatedAt:         user.CreatedAt,
+		},
+	}
+
+	// Insert success, return the account
+	ctx.JSON(http.StatusOK, res)
+}

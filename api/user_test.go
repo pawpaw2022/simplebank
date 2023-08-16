@@ -111,7 +111,6 @@ func TestCreateUserAPI(t *testing.T) {
 				"email":     user.Email,
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-
 				// Build stubs
 				store.EXPECT().
 					CreateUser(gomock.Any(), gomock.Any()).
@@ -208,7 +207,7 @@ func TestCreateUserAPI(t *testing.T) {
 			tc.buildStubs(store)
 
 			// Create a test server
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			// Marshal body data to JSON
