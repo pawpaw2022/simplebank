@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	db "github.com/pawpaw2022/simplebank/db/postgresql"
+	"github.com/pawpaw2022/simplebank/token"
 )
 
 // TransferTxParams contains the input parameters of the transfer transaction
@@ -17,6 +18,7 @@ type TransferInputParams struct {
 	Currency      string `json:"currency" binding:"required,currency"`
 }
 
+// Authorization: a logged-in user can only send money from his own account.
 func (s *Server) createTransfer(ctx *gin.Context) {
 	var req TransferInputParams
 
@@ -27,13 +29,21 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
-	// Validate the fromAccount currency
-	if !s.validateUser(ctx, req.FromAccountID, req.Currency) {
+	fromAccount, valid := s.validateUser(ctx, req.FromAccountID, req.Currency)
+	if !valid {
 		return
 	}
 
-	// Validate the toAccount currency
-	if !s.validateUser(ctx, req.ToAccountID, req.Currency) {
+	// Get the owner from the token
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if fromAccount.Owner != authPayload.Username {
+		err := fmt.Errorf("from account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	_, valid = s.validateUser(ctx, req.ToAccountID, req.Currency)
+	if !valid {
 		return
 	}
 
@@ -57,7 +67,7 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 }
 
 // validateUser validates the currency of the account
-func (s *Server) validateUser(ctx *gin.Context, accountID int64, currency string) bool {
+func (s *Server) validateUser(ctx *gin.Context, accountID int64, currency string) (db.Account, bool) {
 	// Get the account
 	account, err := s.store.GetAccount(ctx, accountID)
 	if err != nil {
@@ -68,7 +78,7 @@ func (s *Server) validateUser(ctx *gin.Context, accountID int64, currency string
 
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 
-		return false
+		return account, false
 	}
 
 	// Validate the currency
@@ -76,8 +86,8 @@ func (s *Server) validateUser(ctx *gin.Context, accountID int64, currency string
 
 		err := fmt.Errorf("accountID [%d] currency mismatch: %s vs %s", accountID, account.Currency, currency)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return false
+		return account, false
 	}
 
-	return true
+	return account, true
 }
