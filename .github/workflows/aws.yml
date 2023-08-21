@@ -28,6 +28,9 @@ jobs:
           role-to-assume: arn:aws:iam::605185620680:role/github-ci
           aws-region: us-east-1
 
+      - name: Load secrets and save to app.env
+        run: aws secretsmanager get-secret-value --secret-id simple_bank --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > app.env
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
