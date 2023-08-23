@@ -59,7 +59,7 @@ jobs:
         run: |
           which kubectl
           /opt/hostedtoolcache/kubectl/1.28.0/x64/kubectl config view
-          /opt/hostedtoolcache/kubectl/1.28.0/x64/kubectl cluster-info
+          which aws
 
       - name: Deploy image to Amazon EKS
         run: |
