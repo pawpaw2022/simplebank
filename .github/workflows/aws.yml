@@ -52,13 +52,13 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
           docker push -a $REGISTRY/$REPOSITORY
 
+      - name: Update Kubernetes config
+        run: aws eks update-kubeconfig --name simple-bank --region us-east-1
+
       - name: Check for debugging
         run: |
           which kubectl
           /opt/hostedtoolcache/kubectl/1.28.0/x64/kubectl config view
-
-      - name: Update Kubernetes config
-        run: aws eks update-kubeconfig --name simple-bank --region us-east-1
 
       - name: Deploy image to Amazon EKS
         run: |
