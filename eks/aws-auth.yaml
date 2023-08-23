@@ -1,4 +1,4 @@
-# @format
+# @format2
 
 apiVersion: v1
 kind: ConfigMap
