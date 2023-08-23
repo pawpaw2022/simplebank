@@ -52,11 +52,6 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
           docker push -a $REGISTRY/$REPOSITORY
 
-      - name: Check for debugging
-        run: |
-          cat ~/.kube/config 
-          cat ~/.aws/credentials
-
       - name: Update Kubernetes config
         run: aws eks update-kubeconfig --name simple-bank --region us-east-1
 
