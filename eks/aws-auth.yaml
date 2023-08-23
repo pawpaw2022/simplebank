@@ -15,5 +15,6 @@ data:
     - rolearn: arn:aws:iam::605185620680:role/github-ci
       username: github-ci
       groups:
-        - system:masters
+        - system:bootstrappers
+        - system:nodes
 
