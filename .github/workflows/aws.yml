@@ -54,7 +54,6 @@ jobs:
 
       - name: Check for debugging
         run: |
-          kubectl config current-context
           cat ~/.kube/config 
           cat ~/.aws/credentials
 
