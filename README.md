@@ -4,7 +4,7 @@
 
 Welcome to the Simple Banking System backend service repository. This project is built in Go and comprises three main components: the database (DB), REST APIs, and deployment configurations.
 
-> **Annoucement**: As of 2023-09-01, the deployment of this project will be deleted from AWS as EKS is too expensive to maintain. The project is meant to be a learning experience and not a production-ready application. If you wish to continue using the project, please fork the repository and deploy it on your own.
+> **Annoucement**: As of 2023-09-01, the service of this project will be terminated from AWS as EKS is too expensive to maintain. The project is meant to be a learning experience and not a production-ready application. If you wish to continue using the project, please fork the repository and deploy it on your own.
 
 ## Overview
 
